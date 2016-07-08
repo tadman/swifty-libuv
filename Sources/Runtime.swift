@@ -29,7 +29,7 @@ public extension Process {
      Returns environment variables
      */
     public static var env: [String: String] {
-        return NSProcessInfo.processInfo().environment
+        return ProcessInfo.processInfo().environment
     }
     
     /**
@@ -37,9 +37,9 @@ public extension Process {
      */
     public static var cwd: String {
         #if os(Linux)
-            return NSFileManager.defaultManager().currentDirectoryPath
+            return FileManager.defaultManager().currentDirectoryPath
         #else
-            return NSFileManager.default().currentDirectoryPath
+            return FileManager.default().currentDirectoryPath
         #endif
     }
     

@@ -110,14 +110,16 @@ private func exit_cb(req: UnsafeMutablePointer<uv_process_t>?, status: Int64, si
     guard let req = req else {
         return
     }
-    
+   
     defer {
         close_handle(req)
     }
     
-    let context = Unmanaged<Proc>.fromOpaque(UnsafeMutablePointer(req.pointee.data)).takeRetainedValue()
-    
-    context.onExitCallback(status)
+    if let _data = req.pointee.data {
+        let context = Unmanaged<Proc>.fromOpaque(OpaquePointer(_data)).takeRetainedValue()
+        
+        context.onExitCallback(status)
+    }
 }
 
 public class SpawnWrap {
@@ -211,8 +213,9 @@ public class SpawnWrap {
             options.pointee.exit_cb = exit_cb
         }
         
-        let unmanaged = Unmanaged.passRetained(proc).toOpaque()
-        childReq.pointee.data = UnsafeMutablePointer(unmanaged)
+        let unmanaged = Unmanaged.passRetained(proc)
+        
+        childReq.pointee.data = UnsafeMutablePointer<Void>(OpaquePointer(bitPattern: unmanaged))
         
         let r = uv_spawn(loop, childReq, options)
         if r < 0 {
